@@ -20,16 +20,20 @@ def draw_image(img, bboxes):
     img.show()
 
 
-image_filename = "/home/red/Repos/IVMSDataset/LabelledDataForPlatesandVehicles/IVMSFrontPlates1Day/JPEGImages/00069.jpeg"
-label_filename = "/home/red/Repos/IVMSDataset/LabelledDataForPlatesandVehicles/IVMSFrontPlates1Day/Yolov5/labels/00069.txt"
+image_filename = "/home/red/Repos/IVMS/Dataset/LabelledDataForPlatesandVehicles/IVMSFrontPlates1Day/JPEGImages/00001.jpeg"
+label_filename = "/home/red/Repos/IVMS/Dataset/LabelledDataForPlatesandVehicles/IVMSFrontPlates1Day/Yolov5/labels/00001.txt"
 bboxes = []
 
 img = Image.open(image_filename)
 
 with open(label_filename, 'r', encoding='utf8') as f:
     for line in f:
+        
         data = line.strip().split(' ')
+        print(data)
+        # bbox = [float(x) for x in data[1:] if data[0] == '5']
         bbox = [float(x) for x in data[1:]]
-        bboxes.append(yolo_to_xml_bbox(bbox, img.width, img.height))
+        if bbox:
+            bboxes.append(yolo_to_xml_bbox(bbox, img.width, img.height))
 
 draw_image(img, bboxes)

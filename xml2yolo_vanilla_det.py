@@ -23,11 +23,15 @@ def yolo_to_xml_bbox(bbox, w, h):
     ymax = int((bbox[1] * h) + h_half_len)
     return [xmin, ymin, xmax, ymax]
 
+# classes_with_attr = ['Prefix_char', 'Platenum_char', 'State']
+classes_to_find = ['belt', 'no belt', 'steering wheel', 'mobile', 'Car', 'Plate']
 
-classes = []
-input_dir = "/home/red/Repos/IVMSDataset/LabelledDataForPlatesandVehicles/IVMSFrontPlates1Day/Annotations/"
-output_dir = "/home/red/Repos/IVMSDataset/LabelledDataForPlatesandVehicles/IVMSFrontPlates1Day/Yolov5/labels/"
-image_dir = "/home/red/Repos/IVMSDataset/LabelledDataForPlatesandVehicles/IVMSFrontPlates1Day/JPEGImages/"
+# This is relevant to output and should be this way, otherwise labels can be misalligned leading
+# to poor accuracy
+classes = ['belt', 'no belt', 'mobile', 'car', 'steering wheel', 'plate'] # Order is important
+input_dir = "/home/red/Repos/IVMS/Dataset/LabelledDataForPlatesandVehicles/IVMSFrontPlates1Day/Annotations/"
+output_dir = "/home/red/Repos/IVMS/Dataset/LabelledDataForPlatesandVehicles/IVMSFrontPlates1Day/Yolov5/labels/"
+image_dir = "/home/red/Repos/IVMS/Dataset/LabelledDataForPlatesandVehicles/IVMSFrontPlates1Day/JPEGImages"
 
 # create the labels folder (output directory)
 os.makedirs(output_dir,exist_ok=True)
@@ -54,16 +58,19 @@ for fil in files:
     height = int(root.find("size").find("height").text)
 
     for obj in root.findall('object'):
-        label = obj.find("name").text
-        # check for new classes and append to list
-        if label not in classes:
-            classes.append(label)
-        index = classes.index(label)
-        pil_bbox = [int(x.text.split('.')[0]) for x in obj.find("bndbox")]
-        yolo_bbox = xml_to_yolo_bbox(pil_bbox, width, height)
-        # convert data to string
-        bbox_string = " ".join([str(x) for x in yolo_bbox])
-        result.append(f"{index} {bbox_string}")
+        if obj.find("name").text in classes_to_find:
+            label = obj.find("name").text.lower()
+            # check for new classes and append to list
+            if label not in classes:
+                classes.append(label)
+            print(classes)
+            index = classes.index(label)
+            print(index, label)
+            pil_bbox = [int(x.text.split('.')[0]) for x in obj.find("bndbox")]
+            yolo_bbox = xml_to_yolo_bbox(pil_bbox, width, height)
+            # convert data to string
+            bbox_string = " ".join([str(x) for x in yolo_bbox])
+            result.append(f"{index} {bbox_string}")
 
     if result:
         # generate a YOLO format text file for each xml file
@@ -71,5 +78,11 @@ for fil in files:
             f.write("\n".join(result))
 
 # generate the classes file as reference
-with open('classes.txt', 'w', encoding='utf8') as f:
+with open('Plate_Det_Data/classes.txt', 'w', encoding='utf8') as f:
     f.write(json.dumps(classes))
+
+
+        # if obj.find("name").text in classes_with_attr:
+        #     for attrib in obj.findall('attributes'):
+        #         print(attrib.find("attribute").find("value").text)
+        # print("=============")
