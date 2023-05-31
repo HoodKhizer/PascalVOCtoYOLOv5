@@ -75,10 +75,10 @@ def yolo_to_xml_bbox(bbox, w, h):
 # ref (reference) and to_check are two rectangles of the form
 # xmin,ymin,xmax,ymax
 def contain_check(ref, to_check):
-    x1_1, y1_1, x2_1, y2_1 = to_check
-    x1_2, y1_2, x2_2, y2_2 = ref
+    x1_tc, y1_tc, x2_tc, y2_tc = to_check
+    x1_rf, y1_rf, x2_rf, y2_rf = ref
     # Check if rect1 is completely inside rect2
-    if x1_1 >= x1_2 and y1_1 >= y1_2 and x2_1 <= x2_2 and y2_1 <= y2_2:
+    if x1_tc >= x1_rf and y1_tc >= y1_rf and x2_tc <= x2_rf and y2_tc <= y2_rf:
         return True
     else:
         return False
@@ -87,11 +87,14 @@ def contain_check(ref, to_check):
 # ref (reference) and to_transform are two rectangles of the form
 # xmin,ymin,xmax,ymax
 def transform_coords(ref, to_transform):
-    x1_1, y1_1, x2_1, y2_1 = to_transform
-    x1_2, y1_2, x2_2, y2_2 = ref
+    x1_tf, y1_tf, x2_tf, y2_tf = to_transform
+    x1_rf, y1_rf, x2_rf, y2_rf = ref
 
-    newx1 = x1_1 - x1_2
-    newx2 = x2_1 - x2_2
-    newy1 = y1_1 - y1_2
-    newy2 = y2_1 - y2_2
-    return [newx1, newx2, newy1, newy2]
+    newx1 = x1_tf - x1_rf
+    newy1 = y1_tf - y1_rf
+
+    newx2 = x2_tf - x1_rf
+    newy2 = y2_tf - y1_rf
+    # print("TO", to_transform)
+    # print("ref", ref)
+    return [newx1, newy1, newx2, newy2]

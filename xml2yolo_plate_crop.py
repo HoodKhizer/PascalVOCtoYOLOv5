@@ -5,10 +5,11 @@ import cv2
 import utils
 import json
 
-# TODO, refactor this monster of a code :|
-# taxi is present in prefix_char, so make sure to account for it when designating
-# prefix boxes
+# TODO, refactor this monster of a code :}, happy about this monster though, LOL
 classes_inside_plates = ['Prefix_char', 'Platenum_char', 'State', 'Platenum', 'Prefix']
+
+classes_without_attrib = ['Prefix_char', 'Platenum_char', 'State', 'dubai_police', 'taxi', 'consulate']
+
 out_classes = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 
                'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
                'u', 'v', 'w', 'x', 'y', 'z', 'dxb', 'uaq', 'shj', 'auh', 'ajm', 'fuj', 
@@ -16,9 +17,9 @@ out_classes = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 
 
 # classes_to_find = []
 # classes_to_find = ['belt', 'no belt', 'mobile', 'car', 'steering wheel', 'plate'] # Order is important
-anno_input_dir = "Data/Dubai_Job_1/Annotations"
+anno_input_dir = "Data/Dxb_plates_all/Annotations"
 anno_output_dir = "Data/OCR_Data/Cropped_Plates_Anno"
-image_input_dir = "Data/Dubai_Job_1/JPEGImages"
+image_input_dir = "Data/Dxb_plates_all/JPEGImages"
 image_output_dir = "Data/OCR_Data/Cropped_Plates_Img"
 labels_to_crop_for = ['Plate'] 
 # create the labels folder (output directory)
@@ -44,6 +45,7 @@ for anno_path in anno_files:
     root = tree.getroot()
 
     full_img_pixels = cv2.imread(image_path)
+    base_image_name = os.path.basename(image_path)
 
     anno_width, anno_height, img_width, img_height = utils.get_width_height(root, full_img_pixels)
     assert anno_width == img_width, "image and annotation width should be equal"
@@ -54,7 +56,16 @@ for anno_path in anno_files:
     list_plate_bboxes = utils.get_plates_coords(list_of_objects, labels_to_crop_for)
 
     for plate_index, plate_bbox in enumerate(list_plate_bboxes):
+        prefix_char_count = 0
+        prefix_count = 0
+        fixed_plate_bbox= []
+        for point in plate_bbox:
+            if point < 0:
+                point = 0
+            fixed_plate_bbox.append(point)
+        plate_bbox = fixed_plate_bbox
         crop_img_pixels = full_img_pixels[plate_bbox[1]:plate_bbox[3], plate_bbox[0]:plate_bbox[2]]
+        crop_height, crop_width, _ = crop_img_pixels.shape
         # list_new_bbox = []
         for obj in list_of_objects:
             object_class = obj.find("name").text
@@ -64,12 +75,14 @@ for anno_path in anno_files:
             contains = utils.contain_check(plate_bbox, pil_bbox)
             if contains:
                 new_bbox = utils.transform_coords(plate_bbox, pil_bbox)
+                # print(plate_bbox)
+                # print(pil_bbox)
+                # print(new_bbox)
                 # list_new_bbox.append(new_bbox)
                 class_from_attrib = utils.find_attribute(obj)
                 if not class_from_attrib:
-                    if object_class in ['Prefix_char', 'Platenum_char', 'State']:
+                    if object_class in classes_without_attrib:
                         print(class_from_attrib, obj.find('name').text, anno_path)
-                        base_image_name = os.path.basename(image_path)
                         if not base_image_name in files_to_correct:
                             files_to_correct.append(base_image_name)
                             continue
@@ -81,10 +94,27 @@ for anno_path in anno_files:
 
                 else:
                     class_index = out_classes.index(class_from_attrib.lower())
-                
+
+                print(base_image_name, crop_width, crop_height, object_class, class_from_attrib, plate_bbox)
+                print()
+                print("=========================")
+                new_bbox = utils.xml_to_yolo_bbox(new_bbox, crop_width, crop_height)
+                if object_class == 'Prefix_char':
+                            prefix_char_count += 1
+                            last_prefix_char_bbox = new_bbox
+                if object_class == 'Prefix':
+                    prefix_count += 1
                 bbox_string = " ".join([str(x) for x in new_bbox])
                 result_anno.append(f"{class_index} {bbox_string}")
-
+        if prefix_count == 0:
+            if prefix_char_count == 1:
+                class_index = out_classes.index('prefix')
+                bbox_string = " ".join([str(x) for x in new_bbox])
+                result_anno.append(f"{class_index} {bbox_string}")
+        else:
+            if not base_image_name in files_to_correct:
+                files_to_correct.append(base_image_name)
+        
         if result_anno:
             anno_out_file_path = os.path.join(anno_output_dir, f"{filename}")
             img_out_file_path = os.path.join(image_output_dir, f"{filename}")
@@ -103,7 +133,8 @@ for anno_path in anno_files:
 
 if files_to_correct:
     with open("faultyfiles.txt", "a+", encoding="utf-8") as f:
-        f.write("\n".join(files_to_correct))
+        # f.write("\n".join(files_to_correct))
+        f.write(str(files_to_correct))
 
 with open('Data/OCR_Data/classes_ocr.txt', 'w', encoding='utf8') as f:
     f.write(json.dumps(out_classes))
