@@ -75,10 +75,6 @@ for anno_path in anno_files:
             contains = utils.contain_check(plate_bbox, pil_bbox)
             if contains:
                 new_bbox = utils.transform_coords(plate_bbox, pil_bbox)
-                # print(plate_bbox)
-                # print(pil_bbox)
-                # print(new_bbox)
-                # list_new_bbox.append(new_bbox)
                 class_from_attrib = utils.find_attribute(obj)
                 if not class_from_attrib:
                     if object_class in classes_without_attrib:
@@ -96,8 +92,7 @@ for anno_path in anno_files:
                     class_index = out_classes.index(class_from_attrib.lower())
 
                 print(base_image_name, crop_width, crop_height, object_class, class_from_attrib, plate_bbox)
-                print()
-                print("=========================")
+                
                 new_bbox = utils.xml_to_yolo_bbox(new_bbox, crop_width, crop_height)
                 if object_class == 'Prefix_char':
                             prefix_char_count += 1
@@ -130,6 +125,7 @@ for anno_path in anno_files:
             with open(anno_out_file_path, "w", encoding="utf-8") as f:
                 f.write("\n".join(result_anno))
                 cv2.imwrite(img_out_file_path, crop_img_pixels)
+        print("------------------")
 
 if files_to_correct:
     with open("faultyfiles.txt", "a+", encoding="utf-8") as f:
@@ -138,6 +134,14 @@ if files_to_correct:
 
 with open('Data/OCR_Data/classes_ocr.txt', 'w', encoding='utf8') as f:
     f.write(json.dumps(out_classes))
+
+
+
+
+
+
+################## USEFUL COMMENTS ##################
+
                 # cv2.imwrite(img_out_file_path, crop_img_pixels)
 
                     # print(class_index, object_class, class_from_attrib)
