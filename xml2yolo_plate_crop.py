@@ -136,9 +136,6 @@ with open('Data/OCR_Data/classes_ocr.txt', 'w', encoding='utf8') as f:
 
 
 
-
-
-
 ################## USEFUL COMMENTS ##################
 
                 # cv2.imwrite(img_out_file_path, crop_img_pixels)
