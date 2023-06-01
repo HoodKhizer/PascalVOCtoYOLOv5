@@ -31,6 +31,8 @@ anno_files = glob.glob(os.path.join(anno_input_dir, '*.xml'))
 # anno_images = glob.glob(os.path.join(anno_input_dir, '*.jpg'))
 files_to_correct = []
 for anno_path in anno_files:
+    if '0010200026220906174159' in anno_path:
+        continue
     result_anno = []
     filename = utils.get_filename(anno_path)
     # print(filename + '.jpg')
@@ -83,9 +85,6 @@ for anno_path in anno_files:
                             files_to_correct.append(base_image_name)
                             continue
                     else:
-                        if not object_class.lower() in out_classes:
-                            print(object_class)
-                            out_classes.append(object_class.lower())
                         class_index = out_classes.index(object_class.lower())
 
                 else:
@@ -104,7 +103,7 @@ for anno_path in anno_files:
         if prefix_count == 0:
             if prefix_char_count == 1:
                 class_index = out_classes.index('prefix')
-                bbox_string = " ".join([str(x) for x in new_bbox])
+                bbox_string = " ".join([str(x) for x in last_prefix_char_bbox])
                 result_anno.append(f"{class_index} {bbox_string}")
         else:
             if not base_image_name in files_to_correct:

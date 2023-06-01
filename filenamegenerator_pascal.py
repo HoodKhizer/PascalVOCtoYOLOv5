@@ -6,17 +6,18 @@ import utils
 
 
 classes_inside_plates = ['Prefix_char', 'Platenum_char', 'State', 'Platenum', 'Prefix']
+list_of_deviants = ['police', 'taxi', 'other', 'consul']
 out_classes = []
 # classes_to_find = []
 # classes_to_find = ['belt', 'no belt', 'mobile', 'car', 'steering wheel', 'plate'] # Order is important
-anno_input_dir = "Dubai_Job_1/Annotations"
-anno_output_dir = "Dubai_Job_1/Cropped_Plates_Anno"
-image_input_dir = "Dubai_Job_1/JPEGImages"
-image_output_dir = "Dubai_Job_1/Cropped_Plates_Img"
+anno_input_dir = "Data/Dxb_plates_all/Annotations"
+# anno_output_dir = "Dubai_Job_1/Cropped_Plates_Anno"
+image_input_dir = "Data/Dxb_plates_all/JPEGImages"
+# image_output_dir = "Dubai_Job_1/Cropped_Plates_Img"
 labels_to_crop_for = ['Plate'] 
 # create the labels folder (output directory)
-os.makedirs(anno_output_dir, exist_ok=True)
-os.makedirs(image_output_dir, exist_ok=True)
+# os.makedirs(anno_output_dir, exist_ok=True)
+# os.makedirs(image_output_dir, exist_ok=True)
 
 # identify all the xml files in the annotations folder (input directory)
 anno_files = glob.glob(os.path.join(anno_input_dir, '*.xml'))
@@ -32,7 +33,7 @@ for anno_path in anno_files:
         if not os.path.exists(image_path):   
             print(f"{image_path} jpeg or jpg image does not exist!")
             continue
-    
+    base_image_name = os.path.basename(image_path)
     tree = ET.parse(anno_path)
     root = tree.getroot()
     anno_width = int(root.find("size").find("width").text)
@@ -62,11 +63,31 @@ for anno_path in anno_files:
                     list_new_bbox.append(new_bbox)
                     class_from_attrib = utils.find_attribute(obj)
                     if not class_from_attrib:
+                        found = False
+                        for word in list_of_deviants:
+                            if word in obj.find('name').text.lower():
+                                found = True
+                                break   
+                        if found and basename not in files_to_correct:
+                            files_to_correct.append(base_image_name) 
                         if obj.find('name').text in ['Prefix_char', 'Platenum_char', 'State']:
                             print(class_from_attrib, obj.find('name').text, anno_path)
                             base_image_name = os.path.basename(image_path)
                             if not base_image_name in files_to_correct:
                                 files_to_correct.append(base_image_name)
+                    else:
+                        if class_from_attrib == 'OTHERS':
+                            print("Found", base_image_name)  
+                        
+                        found = False
+                        for word in list_of_deviants:
+                            if word in class_from_attrib.lower():
+                                found = True
+                                break
+
+                        if  found and basename not in files_to_correct:
+                            files_to_correct.append(base_image_name)        
+                              
 print(files_to_correct)
                         # files_to_correct.append(anno_path)
                     
