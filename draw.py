@@ -38,8 +38,8 @@ def draw_image(img, bboxes, classes_idxes):
 # image_filename = "Data/OCR_Data/Cropped_Plates_Img/0010100015220906171354.jpg"
 # label_filename = "Data/OCR_Data/Cropped_Plates_Anno/0010100015220906171354.txt"
 
-img_dir = 'Data/OCR_Data/Cropped_Plates_Img/'
-anno_dir = 'Data/OCR_Data/Cropped_Plates_Anno/'
+img_dir = 'Data/train/images/'
+anno_dir = 'Data/train/labels/'
 
 file_list = glob.glob(img_dir + "/*")
 
