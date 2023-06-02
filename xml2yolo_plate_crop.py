@@ -31,8 +31,6 @@ anno_files = glob.glob(os.path.join(anno_input_dir, '*.xml'))
 # anno_images = glob.glob(os.path.join(anno_input_dir, '*.jpg'))
 files_to_correct = []
 for anno_path in anno_files:
-    if '0010200026220906174159' in anno_path:
-        continue
     result_anno = []
     filename = utils.get_filename(anno_path)
     # print(filename + '.jpg')
