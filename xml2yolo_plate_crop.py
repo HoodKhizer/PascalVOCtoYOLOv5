@@ -6,14 +6,14 @@ import utils
 import json
 
 # TODO, refactor this monster of a code :}, happy about this monster though, LOL
-classes_inside_plates = ['Prefix_char', 'Platenum_char', 'State', 'Platenum', 'Prefix']
+classes_inside_plates = ['Prefix_char', 'Platenum_char', 'State', 'Platenum', 'Prefix', 'dubai_police', 'taxi', 'consulate']
 
-classes_without_attrib = ['Prefix_char', 'Platenum_char', 'State', 'dubai_police', 'taxi', 'consulate']
+classes_with_attrib = ['Prefix_char', 'Platenum_char', 'State']
 
 out_classes = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 
                'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
-               'u', 'v', 'w', 'x', 'y', 'z', 'dxb', 'uaq', 'shj', 'auh', 'ajm', 'fuj', 
-               'rak', 'prefix', 'platenum', 'others', 'taxi']
+               'u', 'v', 'w', 'x', 'y', 'z', 'dxb', 'uaq', 'shj', 'auh', 'ajm', 'fuj', 'rak',
+               'prefix', 'platenum', 'others', 'taxi', 'dubai_police', 'consulate']
 
 # classes_to_find = []
 # classes_to_find = ['belt', 'no belt', 'mobile', 'car', 'steering wheel', 'plate'] # Order is important
@@ -76,8 +76,9 @@ for anno_path in anno_files:
             if contains:
                 new_bbox = utils.transform_coords(plate_bbox, pil_bbox)
                 class_from_attrib = utils.find_attribute(obj)
+                # classes_without_attrib = ['Prefix_char', 'Platenum_char', 'State', 'dubai_police', 'taxi', 'consulate']
                 if not class_from_attrib:
-                    if object_class in classes_without_attrib:
+                    if object_class in classes_with_attrib:
                         print(class_from_attrib, obj.find('name').text, anno_path)
                         if not base_image_name in files_to_correct:
                             files_to_correct.append(base_image_name)
