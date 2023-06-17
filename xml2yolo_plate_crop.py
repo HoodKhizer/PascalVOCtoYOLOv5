@@ -5,7 +5,7 @@ import cv2
 import utils
 import json
 
-# TODO, refactor this monster of a code :}, happy about this monster though, LOL
+# TODO, refactor this monster of a code :}, happy about this monster though, LOL ¯\_(ツ)_/¯
 classes_inside_plates = ['Prefix_char', 'Platenum_char', 'State', 'Platenum', 'Prefix', 'dubai_police', 'taxi', 'consulate']
 
 classes_with_attrib = ['Prefix_char', 'Platenum_char', 'State']
@@ -87,9 +87,10 @@ for anno_path in anno_files:
                         class_index = out_classes.index(object_class.lower())
 
                 else:
+                    print(base_image_name, crop_width, crop_height, object_class, class_from_attrib, plate_bbox)
                     class_index = out_classes.index(class_from_attrib.lower())
 
-                print(base_image_name, crop_width, crop_height, object_class, class_from_attrib, plate_bbox)
+                
                 
                 new_bbox = utils.xml_to_yolo_bbox(new_bbox, crop_width, crop_height)
                 if object_class == 'Prefix_char':
@@ -102,6 +103,8 @@ for anno_path in anno_files:
         if prefix_count == 0:
             if prefix_char_count == 1:
                 class_index = out_classes.index('prefix')
+                last_prefix_char_bbox[2] = last_prefix_char_bbox[2] + 5/crop_width
+                last_prefix_char_bbox[3] = last_prefix_char_bbox[3] + 5/crop_height
                 bbox_string = " ".join([str(x) for x in last_prefix_char_bbox])
                 result_anno.append(f"{class_index} {bbox_string}")
         else:

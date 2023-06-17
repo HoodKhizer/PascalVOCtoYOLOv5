@@ -22,7 +22,7 @@ def copyfiles(fil, root_dir):
 in_image_dir = "Data/OCR_Data/Cropped_Plates_Img"
 in_anno_dir = "Data/OCR_Data/Cropped_Plates_Anno"
 
-out_dir = "Data"
+out_dir = "Data/OCR_Data"
 
 label_dir = "labels/"
 image_dir = "images/"

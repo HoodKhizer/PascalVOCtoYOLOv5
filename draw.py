@@ -3,12 +3,10 @@ import glob
 import random
 import os
 
-classes = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-  "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", 
-  "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", 
-  "u", "v", "w", "x", "y", "z", "dxb", "uaq", "shj",
-  "auh", "ajm", "fuj", "rak", "prefix", "platenum",
-  "others", "taxi"]
+classes = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 
+               'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+               'u', 'v', 'w', 'x', 'y', 'z', 'dxb', 'uaq', 'shj', 'auh', 'ajm', 'fuj', 'rak',
+               'prefix', 'platenum', 'others', 'taxi', 'dubai_police', 'consulate']
 
 
 print(len(classes))
@@ -28,7 +26,7 @@ def draw_image(img, bboxes, classes_idxes):
     for bbox, class_idx in zip(bboxes,classes_idxes):
         draw.rectangle(bbox, outline="red", width=2)
         print(class_idx)
-        if not class_idx == '44':
+        if not class_idx == '100':
             class_name = classes[int(class_idx)]
             draw.text((bbox[0], bbox[1] - 10), class_name.upper(), fill=(0, 255, 0))
     img.save("example.jpg")
@@ -38,9 +36,10 @@ def draw_image(img, bboxes, classes_idxes):
 # image_filename = "Data/OCR_Data/Cropped_Plates_Img/0010100015220906171354.jpg"
 # label_filename = "Data/OCR_Data/Cropped_Plates_Anno/0010100015220906171354.txt"
 
-img_dir = 'Data/train/images/'
-anno_dir = 'Data/train/labels/'
-
+# img_dir = 'Data/OCR_Data/test/images/'
+# anno_dir = 'Data/OCR_Data/test/labels/'
+img_dir = 'Data/vizthis/img'
+anno_dir = 'Data/vizthis/labels'
 file_list = glob.glob(img_dir + "/*")
 
 image_filename = random.choice(file_list)
@@ -51,18 +50,26 @@ bboxes = []
 classes_idxs = []
 img = Image.open(image_filename)
 
+
+#0010200034220906192858
+# img = Image.open("Data/test/images/0010200034220906192858.jpg")
+# label_filename = "Data/test/labels/0010200034220906192858.txt"
+
+
 print(label_filename)
 with open(label_filename, 'r', encoding='utf8') as f:
     for line in f:
         
         data = line.strip().split(' ')
-        print(data)
+        class_idx = data[0]
+        print(data, classes[int(class_idx)])
         # bbox = [float(x) for x in data[1:] if data[0] == '5']
         bbox = [float(x) for x in data[1:]]
-        class_idx = data[0]
-        if class_idx:
+        
+        # if class_idx != '2' and class_idx != '0' and class_idx != '43' and class_idx != '44' and class_idx != '7':
+        
+        if class_idx == '36':
             classes_idxs.append(class_idx)
-        if bbox:
-            bboxes.append(yolo_to_xml_bbox(bbox, img.width, img.height))
-
+            if bbox:
+                bboxes.append(yolo_to_xml_bbox(bbox, img.width, img.height))
 draw_image(img, bboxes, classes_idxs)

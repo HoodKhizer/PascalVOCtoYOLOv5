@@ -1,0 +1,1 @@
+https://gitee.com/sang93/cvat/blob/develop/cvat/apps/dataset_manager/formats/README.md#yolo
